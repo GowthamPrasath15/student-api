@@ -1,0 +1,21 @@
+# Starts Postgres with the school database and loads db/school_schema.sql
+# the first time the container is created.
+#
+#   docker compose up -d          start
+#   docker compose down -v        stop AND wipe data (re-runs the SQL next start)
+services:
+  postgres:
+    image: postgres:16
+    container_name: school-pg
+    environment:
+      POSTGRES_DB: school
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/school_schema.sql:/docker-entrypoint-initdb.d/01-school_schema.sql:ro
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
