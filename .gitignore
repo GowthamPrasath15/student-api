@@ -20,3 +20,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Files uploaded through POST /files while testing
+uploads/

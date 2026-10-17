@@ -44,6 +44,9 @@ The API runs on <http://localhost:8080>.
 | GET    | `/students/department/{deptId}`   | List students of one department |
 | PUT    | `/students/{id}`                  | Update a student (full replace) |
 | DELETE | `/students/{id}`                  | Delete a student                |
+| POST   | `/files`                          | Upload a file (multipart)       |
+| GET    | `/files/{fileName}`               | Download / view an uploaded file|
+| DELETE | `/files/{fileName}`               | Delete an uploaded file         |
 
 ```bash
 curl -X POST http://localhost:8080/students \
@@ -61,6 +64,50 @@ curl -X PUT http://localhost:8080/students/1 \
 
 curl -X DELETE http://localhost:8080/students/9
 ```
+
+## File upload
+
+Uploaded files are saved in the `uploads/` folder (next to where you start the app; set by `app.upload-dir`).
+Limit: **5 MB** per file. Allowed types: `jpg, jpeg, png, gif, pdf, txt, csv, docx, xlsx`.
+
+```bash
+# Upload  (the form field MUST be called "file")
+curl -X POST http://localhost:8080/files -F "file=@photo.png"
+
+# View / download  (use the fileName returned by the upload)
+curl -O http://localhost:8080/files/<fileName>
+
+# Delete
+curl -X DELETE http://localhost:8080/files/<fileName>
+```
+
+In Postman: method `POST`, URL `http://localhost:8080/files`, **Body > form-data**, add a key named `file`,
+change its type from *Text* to **File**, and choose a file. Do not set the `Content-Type` header yourself.
+
+Upload response (201):
+
+```json
+{
+  "success": true,
+  "message": "File uploaded successfully",
+  "data": {
+    "fileName": "3f2b9c1e-7a44-4d0a-9d52-1c8e5b7a6f10_photo.png",
+    "originalName": "photo.png",
+    "contentType": "image/png",
+    "size": 20480,
+    "downloadUrl": "http://localhost:8080/files/3f2b9c1e-7a44-4d0a-9d52-1c8e5b7a6f10_photo.png"
+  },
+  "timestamp": "2026-10-17T10:25:41.512Z"
+}
+```
+
+| Situation                                   | HTTP status |
+|---------------------------------------------|-------------|
+| Empty request / no `file` field / bad type  | 400         |
+| File not found (download / delete)          | 404         |
+| Wrong HTTP method (e.g. `GET /files`)       | 405         |
+| Larger than 5 MB                            | 413         |
+| Sent JSON instead of form-data              | 415         |
 
 ## Response format
 
