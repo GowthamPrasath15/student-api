@@ -39,6 +39,19 @@ public class StudentController {
         return ResponseEntity.ok(ApiResponse.success("Student fetched successfully", studentService.getById(id)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<StudentResponse>> update(@PathVariable Integer id,
+                                                               @Valid @RequestBody StudentRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Student updated successfully",
+                studentService.update(id, request)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Integer id) {
+        studentService.delete(id);
+        return ResponseEntity.ok(ApiResponse.<Void>success("Student deleted successfully", null));
+    }
+
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<ApiResponse<List<StudentResponse>>> getByDepartment(@PathVariable Integer departmentId) {
         return ResponseEntity.ok(ApiResponse.success("Students fetched successfully",

@@ -42,6 +42,8 @@ The API runs on <http://localhost:8080>.
 | GET    | `/students`                       | List all students               |
 | GET    | `/students/{id}`                  | Get one student                 |
 | GET    | `/students/department/{deptId}`   | List students of one department |
+| PUT    | `/students/{id}`                  | Update a student (full replace) |
+| DELETE | `/students/{id}`                  | Delete a student                |
 
 ```bash
 curl -X POST http://localhost:8080/students \
@@ -51,6 +53,13 @@ curl -X POST http://localhost:8080/students \
 curl http://localhost:8080/students
 curl http://localhost:8080/students/1
 curl http://localhost:8080/students/department/3
+
+# PUT replaces ALL fields, so send the complete body every time
+curl -X PUT http://localhost:8080/students/1 \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Arun","lastName":"Kumar","email":"arun.kumar@college.edu","age":23,"departmentId":2}'
+
+curl -X DELETE http://localhost:8080/students/9
 ```
 
 ## Response format
@@ -70,6 +79,7 @@ Every endpoint returns the same envelope, for success and for errors:
 | Situation                     | HTTP status |
 |-------------------------------|-------------|
 | Created                       | 201         |
+| Fetched / updated / deleted   | 200         |
 | Validation failed / bad JSON  | 400         |
 | Student or department missing | 404         |
 | Duplicate email               | 409         |

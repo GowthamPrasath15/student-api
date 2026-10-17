@@ -46,6 +46,41 @@ public class StudentService {
         return StudentResponse.from(studentRepository.save(student));
     }
 
+    // PUT = full replace: every field in the request overwrites the stored value.
+    @Transactional
+    public StudentResponse update(Integer id, StudentRequest request) {
+
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found: " + id));
+
+        // Email must stay unique, but the student may keep their OWN email
+        studentRepository.findByEmail(request.email())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException("Email already exists: " + request.email());
+                });
+
+        Department department = departmentRepository.findById(request.departmentId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department not found: " + request.departmentId()));
+
+        student.setFirstName(request.firstName());
+        student.setLastName(request.lastName());
+        student.setEmail(request.email());
+        student.setAge(request.age());
+        student.setDepartment(department);
+
+        return StudentResponse.from(studentRepository.save(student));
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        if (!studentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Student not found: " + id);
+        }
+        studentRepository.deleteById(id);
+    }
+
     @Transactional(readOnly = true)
     public List<StudentResponse> getAll() {
         return studentRepository.findAll().stream()
